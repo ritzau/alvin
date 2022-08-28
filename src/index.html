@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+    <meta charset="utf-8">
+    <title>My test page</title>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Qwitcher+Grypen&display=swap');
+
+        h1 {
+            font-family: 'Qwitcher Grypen', cursive;
+        }
+
+        .example {
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+    </style>
+</head>
+
+<body>
+    <h1>Game tutorial</h1>
+
+    <p>
+        Building a JavaScript game step by step.
+    </p>
+
+    <div id="output" class="example"></div>
+
+    <canvas id="canvas" class="example" width="320" height="200"></canvas>
+
+    <script type="text/javascript">
+        const outputElement = document.getElementById("output")
+        const canvasElement = document.getElementById("canvas")
+
+        function appendOutput(i = 1) {
+            outputElement.textContent += ` ${i}`
+            if (i < 10) {
+                setTimeout(appendOutput, 50, i + 1)
+            }
+        }
+
+        console.log("Hello, world!", outputElement.textContent.trim())
+        outputElement.textContent += "Banana"
+
+        appendOutput()
+
+        // outputElement.insertAdjacentHTML('afterend', "<div>foo</div>")
+
+        const STATE_IDLE = 0
+        const STATE_JUMP = 1
+
+        const GROUND_Y = 150
+        const JUMP_SPEED = 6
+        const GRAVITY = 0.2
+
+        const ctx = canvasElement.getContext('2d')
+        let state = STATE_IDLE
+        const player = {
+            x: 50,
+            y: GROUND_Y,
+            dx: 0,
+            dy: 0,
+            width: 25,
+            height: 25,
+            color: 'green',
+        }
+
+        addEventListener('keydown', event => {
+            if (event.code == 'Space' && state == STATE_IDLE) {
+                state = STATE_JUMP
+                player.dy = -JUMP_SPEED
+            }
+        })
+
+        function updateScene() {
+            outputElement.textContent = `player.y: ${player.y}`
+
+            if (state == STATE_JUMP) {
+                const goingDown = player.dy > 0
+
+                player.dy += GRAVITY
+
+                if (goingDown && player.y > GROUND_Y) {
+                    player.dy = 0
+                    player.y = GROUND_Y
+                    state = STATE_IDLE
+                }
+            }
+
+            player.x += player.dx
+            player.y += player.dy
+        }
+
+        function clearBackground() {
+            ctx.fillStyle = 'lightblue'
+            ctx.fillRect(0, 0, canvasElement.width, canvasElement.height)
+        }
+
+        function drawObject(gameObject) {
+            ctx.fillStyle = gameObject.color
+            ctx.fillRect(gameObject.x, gameObject.y, gameObject.width, gameObject.height)
+        }
+
+        function gameLoop() {
+            updateScene()
+            clearBackground()
+            drawObject(player)
+            requestAnimationFrame(gameLoop)
+        }
+
+        gameLoop()
+
+    </script>
+
+</body>
+
+</html>
